@@ -130,7 +130,8 @@ def generate_vectors_from_note_events(note_events, tick_resolution):
     for rounded_time, note, velocity in note_events:
         # Fill in vectors up to the current event's time
         while current_tick < rounded_time:
-            vector = [1 if i in active_notes else 0 for i in range(128)]
+            vector = np.zeros(128, dtype=int)
+            vector[list(active_notes)] = 1
             vectors.append(vector)
             current_tick += tick_resolution
         
@@ -144,7 +145,8 @@ def generate_vectors_from_note_events(note_events, tick_resolution):
 
     # Handle remaining time after the last event
     while current_tick <= max(e[0] for e in note_events):
-        vector = [1 if i in active_notes else 0 for i in range(128)]
+        vector = np.zeros(128, dtype=int)
+        vector[list(active_notes)] = 1
         vectors.append(vector)
         current_tick += tick_resolution
     
