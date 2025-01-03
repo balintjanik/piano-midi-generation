@@ -83,6 +83,82 @@ def midi_to_one_hot(file_path, min_note=24, max_note=108):
     one_hot_vectors = notes_to_one_hot(mapped_notes, min_note, max_note)
     return one_hot_vectors
 
+def midi_to_note_indices(file_path, min_note=24, max_note=108):
+    midi_notes = parse_midi_notes_sequence(file_path)
+    mapped_notes = map_notes_to_range(midi_notes, min_note, max_note)
+    note_indices = [midi_int_to_note_index(midi_note) for midi_note in mapped_notes]
+    return note_indices
+
+def midi_int_to_note_index(midi_note):
+    """
+    Converts MIDI note number (between 24 and 109) to note index (between 0 and 85).
+
+    Args:
+        midi_note (int) : Note number in MIDI (between 24 and 109)
+    
+    Returns:
+        Integer between 0 (C1) and 85 (C8) for MIDI compatibility.
+    """
+    return midi_note - 24
+
+def note_index_to_midi_int(note_index):
+    """
+    Converts note index (between 0 and 85) to MIDI note number (between 24 and 109).
+
+    Args:
+        note_index (int) : Index of note in the one-hot vector (between 0 and 85)
+    
+    Returns:
+        Integer between 24 (C1) and 109 (C8) for MIDI compatibility.
+    """
+    return 24 + note_index
+
+def one_hot_encode(sequence, num_notes=85):
+    """
+    Converts a sequence of integer notes to a sequence of one-hot encoded notes.
+    
+    Args:
+        sequence (list[int]) : List of integers with a maximum difference of num_notes. 
+        num_notes (int) : Size of "vocabulary", the difference between the lowest and highest possible notes.
+    
+    Returns:
+        numpy.ndarray: A 2D array of shape (len(sequence), num_notes),
+            where each row is a one-hot vector corresponding to a note.
+    """
+    one_hot = np.zeros((len(sequence), num_notes), dtype=np.float32)
+    for i, note in enumerate(sequence):
+        one_hot[i, note] = 1.0
+    return one_hot
+
+def notes_to_midi(notes, output_file, ticks_per_beat=480):
+    """
+    Saves a sequence of notes to a MIDI file.
+
+    Args:
+        notes (list[int]) : Sequence of notes represented as integers between 0 and 85.
+        output_file (str) : Path of output file.
+        ticks_per_beat (int) : Ticks per beat in the MIDI file.
+    
+    Returns:
+        None
+    """
+    midi = MidiFile(ticks_per_beat=ticks_per_beat)
+    track = MidiTrack()
+    midi.tracks.append(track)
+    
+    # Add a simple tempo and program change (default piano instrument)
+    track.append(Message('program_change', program=0, time=0))
+
+    # Convert notes from index to MIDI note and add to the track
+    for note in notes:
+        midi_note = note_index_to_midi_int(note)
+        track.append(Message('note_on', note=midi_note, velocity=64, time=0))
+        track.append(Message('note_off', note=midi_note, velocity=64, time=480))
+
+    # Save the MIDI file
+    midi.save(output_file)
+    print(f"MIDI file saved to {output_file}")
+
 def parse_note_onoff_events(mid, tick_resolution):
     """
     Collects note on/off events from a midi object and stores them with their timing rounded to tick_resolution.
