@@ -33,9 +33,9 @@ def create_dataloaders(dataset, batch_size, train_ratio=0.7, val_ratio=0.15, tes
 
     train_dataset, val_dataset, test_dataset = random_split(dataset, [train_size, val_size, test_size])
 
-    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True)
-    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, pin_memory=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=True, pin_memory=True)
+    test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, pin_memory=True)
 
     return train_loader, val_loader, test_loader
 
@@ -103,7 +103,7 @@ def train_one_epoch(model, dataloader, optimizer, loss_fn, task_type, device="cp
     epoch_accs = []
 
     for x, y in dataloader:
-        x, y = x.to(device), y.to(device)
+        x, y = x.to(device, non_blocking=True), y.to(device, non_blocking=True)
 
         optimizer.zero_grad()
         y_hat = model(x)
