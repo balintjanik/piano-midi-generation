@@ -77,7 +77,8 @@ def compute_accuracy(y_hat, y, task_type):
         Accuracy as a float
     """
     if task_type == "multiclass":
-        y_pred = torch.argmax(y_hat, dim=1)
+        y_pred = torch.argmax(y_hat, dim=-1)
+        y = torch.argmax(y, dim=-1)
         return (y_pred == y).float().mean().item()
     elif task_type == "multi-label":
         y_pred = (torch.sigmoid(y_hat) > 0.5).float()
