@@ -3,3 +3,4 @@
 /generations/model_1/*.mid
 /generations/model_2/*.mid
 /generations/model_3/*.mid
+*.pyc
