@@ -176,9 +176,9 @@ def parse_note_onoff_events(mid, tick_resolution):
         current_time = 0
         for msg in track:
             current_time += msg.time
-            if msg.type == 'note_on':
+            if msg.type == 'note_on' and 24 <= msg.note <= 108:
                 rounded_time = round(current_time / tick_resolution) * tick_resolution
-                note_events.append((rounded_time, msg.note, msg.velocity))
+                note_events.append((rounded_time, msg.note - 24, msg.velocity))
     
     # Sort events by time
     note_events.sort(key=lambda x: x[0])
@@ -206,7 +206,7 @@ def generate_vectors_from_note_events(note_events, tick_resolution):
     for rounded_time, note, velocity in note_events:
         # Fill in vectors up to the current event's time
         while current_tick < rounded_time:
-            vector = np.zeros(128, dtype=int)
+            vector = np.zeros(85, dtype=int)
             vector[list(active_notes)] = 1
             vectors.append(vector)
             current_tick += tick_resolution
@@ -221,7 +221,7 @@ def generate_vectors_from_note_events(note_events, tick_resolution):
 
     # Handle remaining time after the last event
     while current_tick <= max(e[0] for e in note_events):
-        vector = np.zeros(128, dtype=int)
+        vector = np.zeros(85, dtype=int)
         vector[list(active_notes)] = 1
         vectors.append(vector)
         current_tick += tick_resolution
@@ -279,14 +279,14 @@ def multiclass_vectors_to_midi(vectors, output_file, tick_resolution=5):
         note_on_events = active_notes_this_tick - active_notes
         for note in note_on_events:
             delta_time = current_tick - last_tick
-            track.append(Message('note_on', note=note, velocity=64, time=delta_time))
+            track.append(Message('note_on', note=note+24, velocity=64, time=delta_time))
             last_tick = current_tick
 
         # Add note-off events (= note_on events with 0 velocity)
         note_off_events = active_notes - active_notes_this_tick
         for note in note_off_events:
             delta_time = current_tick - last_tick
-            track.append(Message('note_on', note=note, velocity=0, time=delta_time))
+            track.append(Message('note_on', note=note+24, velocity=0, time=delta_time))
             last_tick = current_tick
 
         # Update active notes
