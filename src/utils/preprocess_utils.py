@@ -176,9 +176,12 @@ def parse_note_onoff_events(mid, tick_resolution):
         current_time = 0
         for msg in track:
             current_time += msg.time
-            if msg.type == 'note_on' and 24 <= msg.note <= 108:
+            if (msg.type == 'note_on' or msg.type == 'note_off') and 24 <= msg.note <= 108:
                 rounded_time = round(current_time / tick_resolution) * tick_resolution
-                note_events.append((rounded_time, msg.note - 24, msg.velocity))
+                if msg.type == 'note_on':
+                    note_events.append((rounded_time, msg.note - 24, msg.velocity))
+                else:
+                    note_events.append((rounded_time, msg.note - 24, 0))
     
     # Sort events by time
     note_events.sort(key=lambda x: x[0])
@@ -248,7 +251,7 @@ def midi_to_multiclass_vectors(midi_file, tick_resolution=5):
     # Generate vectors for every tick based on the note events
     vectors = generate_vectors_from_note_events(note_events, tick_resolution)
 
-    return vectors
+    return vectors[:-1] # Cut off end to lose last note_off event
 
 
 def multiclass_vectors_to_midi(vectors, output_file, tick_resolution=5):
@@ -278,7 +281,6 @@ def multiclass_vectors_to_midi(vectors, output_file, tick_resolution=5):
         # Add note-on events
         note_on_events = active_notes_this_tick - active_notes
         for note in note_on_events:
-            print(f"{note+24} note on.")
             delta_time = current_tick - last_tick
             track.append(Message('note_on', note=note+24, velocity=64, time=delta_time))
             last_tick = current_tick
@@ -286,7 +288,6 @@ def multiclass_vectors_to_midi(vectors, output_file, tick_resolution=5):
         # Add note-off events (= note_on events with 0 velocity)
         note_off_events = active_notes - active_notes_this_tick
         for note in note_off_events:
-            print(f"{note+24} note off.")
             delta_time = current_tick - last_tick
             track.append(Message('note_on', note=note+24, velocity=0, time=delta_time))
             last_tick = current_tick
@@ -297,7 +298,6 @@ def multiclass_vectors_to_midi(vectors, output_file, tick_resolution=5):
     total_ticks = len(vectors) * tick_resolution
     
     for note in active_notes:
-        print(f"{note+24} note off. FINAL")
         delta_time = total_ticks - last_tick
         last_tick += delta_time
         track.append(Message('note_on', note=note+24, velocity=0, time=delta_time))
