@@ -86,7 +86,7 @@ def compute_accuracy(y_hat, y, task_type):
     else:
         raise ValueError("Unsupported task_type. Use 'multiclass' or 'multi-label'.")
 
-def train_one_epoch(model, dataloader, optimizer, loss_fn, task_type, device="cpu"):
+def train_one_epoch(model, dataloader, optimizer, loss_fn, task_type, device="cpu", is_model_transformer=False):
     """
     Trains the model for one epoch.
     Args:
@@ -96,6 +96,7 @@ def train_one_epoch(model, dataloader, optimizer, loss_fn, task_type, device="cp
         loss_fn : Loss function
         task_type (str) : 'multiclass' or 'multi-label'
         device (str) : Device ('cpu' or 'cuda')
+        is_model_transformer (bool) : True if the model is a transformer
     Returns:
         Tuple of average loss and accuracy for the epoch
     """
@@ -107,7 +108,10 @@ def train_one_epoch(model, dataloader, optimizer, loss_fn, task_type, device="cp
         x, y = x.to(device, non_blocking=True), y.to(device, non_blocking=True)
 
         optimizer.zero_grad()
-        y_hat = model(x)
+        if is_model_transformer:
+            y_hat = model(x, y)
+        else:
+            y_hat = model(x)
         loss = loss_fn(y_hat, y)
         acc = compute_accuracy(y_hat, y, task_type)
         epoch_losses.append(loss.item())
@@ -120,7 +124,7 @@ def train_one_epoch(model, dataloader, optimizer, loss_fn, task_type, device="cp
     return avg_loss, avg_acc
 
 @torch.no_grad()
-def evaluate_one_epoch(model, dataloader, loss_fn, task_type, device="cpu"):
+def evaluate_one_epoch(model, dataloader, loss_fn, task_type, device="cpu", is_model_transformer=False):
     """
     Evaluates the model for one epoch.
     Args:
@@ -129,6 +133,7 @@ def evaluate_one_epoch(model, dataloader, loss_fn, task_type, device="cpu"):
         loss_fn : Loss function
         task_type (str) : 'multiclass' or 'multi-label'
         device (str) : Device ('cpu' or 'cuda')
+        is_model_transformer (bool) : True if the model is a transformer
     Returns:
         Tuple of average loss and accuracy for the epoch
     """
@@ -138,7 +143,10 @@ def evaluate_one_epoch(model, dataloader, loss_fn, task_type, device="cpu"):
 
     for x, y in dataloader:
         x, y = x.to(device), y.to(device)
-        y_hat = model(x)
+        if is_model_transformer:
+            y_hat = model(x, y)
+        else:
+            y_hat = model(x)
         loss = loss_fn(y_hat, y)
         acc = compute_accuracy(y_hat, y, task_type)
         epoch_losses.append(loss.item())
@@ -158,6 +166,7 @@ def train_model(
     early_stopping_patience=2,
     device="cpu",
     learning_rate=0.001,
+    is_model_transformer=False
 ):
     """
     Trains and evaluates the model, with early stopping.
@@ -171,6 +180,7 @@ def train_model(
         early_stopping_patience (int) : Number of epochs to wait for validation loss improvement
         device (str) : Device to train on ('cpu' or 'cuda')
         learning_rate (float) : Learning rate for the optimizer
+        is_model_transformer (bool) : True if the model is a transformer
     Returns:
         Best model (based on validation loss), and training/validation metrics
     """
@@ -196,23 +206,16 @@ def train_model(
 
     for epoch_idx in range(n_epochs):
         # Train
-        avg_train_loss, avg_train_acc = train_one_epoch(
-            model, dataloaders["train"], optimizer, loss_fn, task_type, device
-        )
+        avg_train_loss, avg_train_acc = train_one_epoch(model, dataloaders["train"], optimizer, loss_fn, task_type, device, is_model_transformer)
         train_losses.append(avg_train_loss)
         train_accuracy.append(avg_train_acc)
 
         # Validate
-        avg_val_loss, avg_val_acc = evaluate_one_epoch(
-            model, dataloaders["val"], loss_fn, task_type, device
-        )
+        avg_val_loss, avg_val_acc = evaluate_one_epoch(model, dataloaders["val"], loss_fn, task_type, device, is_model_transformer)
         val_losses.append(avg_val_loss)
         val_accuracy.append(avg_val_acc)
 
-        print(
-            f"Epoch {epoch_idx}: Train Loss={avg_train_loss:.4f}, Val Loss={avg_val_loss:.4f}, "
-            f"Train Acc={avg_train_acc:.4f}, Val Acc={avg_val_acc:.4f}"
-        )
+        print(f"Epoch {epoch_idx}: Train Loss={avg_train_loss:.4f}, Val Loss={avg_val_loss:.4f}, Train Acc={avg_train_acc:.4f}, Val Acc={avg_val_acc:.4f}")
 
         # Early stopping
         if avg_val_loss < best_val_loss:
@@ -228,7 +231,7 @@ def train_model(
     return best_model, (train_losses, val_losses, train_accuracy, val_accuracy)
 
 @torch.no_grad()
-def test_model(model, dataloader, loss_fn, task_type, device="cpu"):
+def test_model(model, dataloader, loss_fn, task_type, device="cpu", is_model_transformer=False):
     """
     Evaluates the model on test data.
     Args:
@@ -240,6 +243,6 @@ def test_model(model, dataloader, loss_fn, task_type, device="cpu"):
     Returns:
         Test loss and accuracy
     """
-    test_loss, test_acc = evaluate_one_epoch(model, dataloader, loss_fn, task_type, device)
+    test_loss, test_acc = evaluate_one_epoch(model, dataloader, loss_fn, task_type, device, is_model_transformer)
     print(f"Test metrics - Loss: {test_loss:.4f}, Accuracy: {test_acc:.4f}")
     return test_loss, test_acc
