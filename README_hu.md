@@ -66,7 +66,7 @@ Az második modell a hangok indexének sorozatát kapja inputként, melyet elős
 
 ### Eredmények
 
-Ugyan az előfeldolgozás költsége csökkent, az eredmény nem változott jelentősen. Bizonytalanul ugyan, de talán kicsit konzisztensebbnek mondanám az egyszerű motívumok megjelenését (az első modellhez képest), de egyértelmű metrika hiányában ez lehet csak a személyes véleményem.
+Ugyan az előfeldolgozás költsége csökkent, az eredmény nem változott jelentősen. Bizonytalanul ugyan, de talán kicsit konzisztensebbnek mondanám az egyszerű motívumok megjelenését (az első modellhez képest), de egyértelmű metrika hiányában ez lehet csak a személyes véleményem. Példákat a [generations/model_2](generations/model_2/) mappában lehet találni.
 
 ![Grafikon a betanítás költség és pontosság alakulásáról](data/images/model_2_graphs.png)
 
@@ -80,13 +80,73 @@ A hátrányok alapvetően itt is az előfeldolgozás adatvesztésében rejlenek 
 
 ### Reprezentáció
 
+A harmadik modellnél használt reprezentáció teljes mértékben megegyezik a második modellnél használttal, így több információ ott található.
+
+### Modell architektúra
+
+A modell architektúránál valamilyen transzformer-alapú felépítést szerettem volna, azonban nem teljesen értettem az `nn.Transformer` osztály működését (és nem néztem át ekkor még az előadás anyagot), ezért a transzformernek csak az encoder részét használtam fel, így született az ábrán látható érdekes architektúra. A becslés továbbra is one-hot formájú. Utólag ez értelmét vesztette, azonban ezek a próbálkozások is hozzátartoztak a kísérletezésemhez, ezért úgy döntöttem, hogy nem törlöm ki a hibás modelleket sem.
+
+![Ábra a modell architektúrájáról](data/images/model_3.png)
+
+**Megjegyzés:** a betanítások során több beállítással is próbálkoztam, így az elmentett modellek bizonyos attribútumai nem feltétlenül egyeznek az ábrán látottakkal. A [weights/model_3](weights/model_3/) mappában található elmentett modellek az alábbi logika alapján vannak elnevezve: `YYYY-MM-DD_hh-mm-ss_e[embedding_dimension]_nh[attention_heads_number]_h[hidden_size]_l[layers_number]_sl[sequence_length]`.
+
+### Eredmények
+
+A modell a metrikák alapján egészen hasonlóan teljesített az 1. és 2. modellhez, de a gyakorlatban jelentősen rosszabbnak bizonyult. Alapvetően két mély hang váltakozását becsülte, az eddigi modellek közül itt kellett a legjobban a temperature beállítással kísérletezni, hogy valamilyen értelmes sorozatot lehessen generálni, de az eredmények így is ennél a modellnél a legrosszabbak. Példákat a [generations/model_3](generations/model_3/) mappában lehet találni.
+
+![Grafikon a betanítás költség és pontosság alakulásáról](data/images/model_3_graphs.png)
+
+*Grafikonok a költség és pontosság alakulásáról a modell 15 epoch-os betanításánál (11 epoch early stopping miatt).*
+
+### Kihívások, hátrányok
+
+A reprezentációból adódó hibák itt is felmerülnek (bővebben lásd 1. modell kihívásainak leírását). A generált szekvenciákban szinte végig két mély hang váltakozása volt megfigyelhető, és temperature scaling után is rengeteg hirtelen ugrás volt nagyon mély és nagyon magas hangok miatt. Először arra gondoltam, hogy a transzformer alapú modell túlságosan rátanult az akkordok feldarabolt mély és magas hangjaira (bővebben lásd 1. modell kihívásainak leírását), de tekintve, hogy architektúrálisan mennyire nem olyan lett a modell, mint azt eredetileg szerettem volna, lehet, hogy egyszerűen azzal van a gond.
+
+## 4. Modell
+
+### Reprezentáció
+
+Végül egy egészen új megközelítéssel próbálkoztam meg, mely szinte korlátok nélkül tud bármilyen "billentyűnyomást" bármikor előidézni. Ezt úgy értem el, hogy az eredeti MIDI fájlt felszeleteltem valamilyen időközönként (`tick_resolution`-ként hivatkoztam erre), és minden "szeletben" eltároltam, hogy a 85 ismert hang közül melyik volt éppen aktív. Így dimenziókra hasonló a reprezentáció, mint a kezdeti one-hot vektoros ábrázolás, azonban itt több hang is lehet aktív, azaz több érték is lehet 1-es egy-egy vektorban. Természetesen annyi veszteséget ez is okoz, amennyit a hangok kezdetén/végén kell kerekíteni a legközelebbi "szelethez".
+
+![Ábra a reprezentációról](data/images/representation_4.png)
+
+### Modell architektúra
+
+Itt is egy transzformer alapú modellt szerettem volna megvalósítani, azonban az alapot a 3. modell képezte, amelyet teljesen hibásan definiáltam, és ekkor még nem tudtam, hogy hogyan kellene helyesen meghatározni a modellt, ezért úgy döntöttem, hogy kipróbálom ezzel a felépítéssel. A modell alapvetően annyiban változott, hogy az embedding réteg helyett egy teljesen összekötött réteget használtam, hiszen most nem egész számok, hanem vektorok sorozatát kap inputként a modell.
+
+![Ábra a modell architektúrájáról](data/images/model_4.png)
+
+**Megjegyzés:** a betanítások során több beállítással is próbálkoztam, így az elmentett modellek bizonyos attribútumai nem feltétlenül egyeznek az ábrán látottakkal. A [weights/model_4](weights/model_4/) mappában található elmentett modellek az alábbi logika alapján vannak elnevezve: `YYYY-MM-DD_hh-mm-ss_e[embedding_dimension]_nh[attention_heads_number]_h[hidden_size]_l[layers_number]_sl[sequence_length]_tr[tick_resolution]`.
+
+### Eredmények
+
+A modell a különös architektúra ellenére (rengeteg kísérletezés és paraméterezés után) kifejezetten meggyőző eredményeket produkált. A generált dallamokban megfigyelhetők mélyebb hangokból álló akkordok, magasabb hangokon egyéni billentyűlenyomások sorozatából álló dallam, illetve valamilyen ritmusosság is. Példákat a [generations/model_4](generations/model_4/) mappában lehet találni.
+
+![Grafikon a betanítás költség és pontosság alakulásáról](data/images/model_3_graphs.png)
+
+*Grafikonok a költség és pontosság alakulásáról a modell 6 epoch-os betanításánál.*
+
+### Kihívások, hátrányok
+
+A bonyolultabb modell (és előfeldolgozás) miatti megnövekedett erőforrásigényeken túl a reprezentációval is rengeteg gond volt. Ugyan a reprezentáció nagyon jónak tűnt elsőre, a tökéletes `tick_resolution` megválasztása hatalmas szerepet játszott az ideális eredmény elérésében. Amennyiben nagyon kicsi "szeletméretet" állítunk be, a reprezentációból adódó veszteség minimális lesz ugyan (nem nagyon kell kerekíteni az eredeti hangokat), viszont garantálja a neuronháló hibás tanulását. Túl kicsi szeletek esetén, a vektorok nagy része, azonos lesz az előtte lévő vektorral. Ez azt eredményezi, hogy a modell csupán annyit tanul meg, hogy megismételje az utoljára látott vektort, a sorozat korábbi elemei nem is számítanak, és így is rendkívül magas pontosságot tud elérni, de ez a valóságban haszontalan lesz új zene generálására.
+
+![Ábra a túl kicsi szeletek gyengeségéről](data/images/representation_4_issues_1.png)
+
+Ellenkező esetben, ha a `tick_resolution` túl nagy, azaz nagyon nagy szeletekre vágjuk az eredeti adatot, akkor túl nagy lesz a kerekítésekből adódó adatveszteség, és hibás adatokon fog tanulni a modell, szintén gyenge teljesítményt eredményezve.
+
+![Ábra a túl nagy szeletek gyengeségéről](data/images/representation_4_issues_2.png)
+
+## 5. Modell
+
+### Reprezentáció
+
 ### Modell architektúra
 
 ### Eredmények
 
 ### Kihívások, hátrányok
 
-## 4. Modell
+## 6. Modell
 
 ### Reprezentáció
 
