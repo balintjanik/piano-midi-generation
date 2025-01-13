@@ -74,7 +74,7 @@ Ugyan az előfeldolgozás költsége csökkent, az eredmény nem változott jele
 
 ### Kihívások, hátrányok
 
-A hátrányok alapvetően itt is az előfeldolgozás adatvesztésében rejlenek (lásd részletesebben az [1. Modell - Kihívások, hátrányok](#kihívások-hátrányok-1) részt).
+A hátrányok alapvetően itt is az előfeldolgozás adatvesztésében rejlenek (lásd részletesebben az [1. Modell - Kihívások, hátrányok](#kihívások-hátrányok) részt).
 
 ## 3. Modell
 
