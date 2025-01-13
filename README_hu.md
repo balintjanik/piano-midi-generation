@@ -47,7 +47,7 @@ A megközelítés legnagyobb hátránya egyértelműen a reprezentációban rejl
 
 ![Reprezentáció hibáit ábrázoló kép](data/images/representation_1_issues.png)
 
-Egy másik jelentős probléma az adatfeldolgozás erőforrásigénye. Az adatbázis MIDI fájljainak feldolgozása rendkívül időigényes, minden egyes adatbáziselem lekérésekor be kell olvasni a fájlt, majd one-hot vektorok sorozatává alakítani. Az adatbázis egyszeri előfeldolgozását pedig megakadályozza, hogy a one-hot vektoros ábrázolás megsokszorozza az adatbázis méretét, így nem fért el egyszerre a számomra rendelkezésre álló memóriaterületen.
+Egy másik jelentős probléma az adatfeldolgozás erőforrásigénye. Az adatbázis MIDI fájljainak feldolgozása rendkívül időigényes, minden egyes adatbáziselem lekérésekor be kell olvasni a fájlt, majd one-hot vektorok sorozatává alakítani. Az adatbázis egyszeri előfeldolgozását pedig megakadályozza, hogy a one-hot vektoros ábrázolás megsokszorozza az adatbázis méretét, így nem fért el egyszerre a számomra rendelkezésre álló memóriaterületen. Gyorsíthatna a többszálusítása az adatok feldolgozásának (pytorch `num_workers`), de a jupyter notebook nem támogatja a CPU-s párhuzamosítást.
 
 ## 2. Modell
 
