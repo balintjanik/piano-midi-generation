@@ -41,9 +41,7 @@ Az egyszerű reprezentáció ellenére a modell meglepően jól teljesített az 
 ### Kihívások, hátrányok
 A megközelítés legnagyobb hátránya egyértelműen a reprezentációban rejlik: ellehetetleníti az egymásra csúszó hangok, az akkordok, és még a különböző hosszúságú hangok ábrázolását is. Az akkordok egyéni hangokra bontása valószínűleg rengeteg zajt vezet be a tanítóadatokba, (szerintem) ezért a generált sorozatok gyakran tartalmaznak kiugró hangokat (nagyon mély vagy nagyon magas), amelyek kevésbé illenek a dallamba.
 
-![Reprezentáció különböző hosszúságú hangok elvesztését ábrázoló kép](data/images/representation_1_issues_1.png)
-![Reprezentáció akkordok elvesztését ábrázoló kép](data/images/representation_1_issues_2.png)
-![Reprezentáció egymásra csúszó hangok elvesztését ábrázoló kép](data/images/representation_1_issues_3.png)
+![Reprezentáció hibáit ábrázoló kép](data/images/representation_1_issues.png)
 
 Egy másik jelentős probléma az adatfeldolgozás erőforrásigénye. Az adatbázis MIDI fájljainak feldolgozása rendkívül időigényes, minden egyes adatbáziselem lekérésekor be kell olvasni a fájlt, majd one-hot vektorok sorozatává alakítani. Az adatbázis egyszeri előfeldolgozását pedig megakadályozza, hogy a one-hot vektoros ábrázolás megsokszorozza az adatbázis méretét, így nem fért el egyszerre a számomra rendelkezésre álló memóriaterületen.
 
