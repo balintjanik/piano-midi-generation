@@ -29,10 +29,10 @@ Az első modell nyersen a one-hot vektorok sorozatát kapja inputként, melyet 3
 
 ![Ábra a modell architektúrájáról](data/images/model_1.png)
 
-**Megjegyzés:** a betanítások során több beállítással is próbálkoztam, így az elmentett modellek bizonyos attribútumai nem feltétlen egyeznek az ábrán látottakkal. A `weights/model_1` mappában található elmentett modellek az alábbi logika alapján vannak elnevezve: `YYYY-MM-DD_hh-mm-ss_h[LSTM_hidden_layer_size]_l[LSTM_layers_number]_sl[sequence_length]`
+**Megjegyzés:** a betanítások során több beállítással is próbálkoztam, így az elmentett modellek bizonyos attribútumai nem feltétlen egyeznek az ábrán látottakkal. A [weights/model_1](weights/model_1/) mappában található elmentett modellek az alábbi logika alapján vannak elnevezve: `YYYY-MM-DD_hh-mm-ss_h[LSTM_hidden_layer_size]_l[LSTM_layers_number]_sl[sequence_length]`
 
 ### Eredmények
-Az egyszerű reprezentáció ellenére a modell meglepően jól teljesített az egyszerű motívumok megtanulásában. A kezdő dallamokat jól folytatja, és alapvető fel-le lépkedéseket fel lehet ismerni a generált sorozatokban. Példákat a `generations/model_1` mappában lehet találni.
+Az egyszerű reprezentáció ellenére a modell meglepően jól teljesített az egyszerű motívumok megtanulásában. A kezdő dallamokat jól folytatja, és alapvető fel-le lépkedéseket fel lehet ismerni a generált sorozatokban. Példákat a [generations/model_1](generations/model_1/) mappában lehet találni.
 
 ![Grafikon a betanítás költség és pontosság alakulásáról](data/images/model_1_graphs.png)
 
