@@ -1,7 +1,11 @@
 /data/midis
 /data/input.mid
 /generations/model_1/*.mid
+!/generations/model_1/*show*.midi
 /generations/model_2/*.mid
+!/generations/model_2/*show*.midi
 /generations/model_3/*.mid
+!/generations/model_3/*show*.midi
 /generations/model_4/*.mid
+!/generations/model_4/*show*.midi
 *.pyc
