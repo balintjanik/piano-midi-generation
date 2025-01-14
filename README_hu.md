@@ -1,6 +1,6 @@
 # MIDI generálás zongorához
 
-Ebben a projektben 4 különböző reprezentációval és modellel próbáltam meg MIDI "kottát" generálni zongora hangszerhez. Az összes modellt én definiáltam, és tanítottam be szekvencia predikcióra klasszikus zongoraművek MIDI adatain. Eleinte egy nagyon primitív reprezentációval kezdtem, és az első 3 megközelítés alapvetően ugyanezzel az egyszerű reprezentációval dolgozik, csupán modellbeli különbségek vannak. A 4. megközelítés egy egészen más, sokkal komplexebb reprezentációt használ. Részletek lentebb olvashatók minden modellről.
+Ebben a projektben 6 különböző reprezentációval és modellel próbáltam meg MIDI "kottát" generálni zongora hangszerhez. Az összes modellt én definiáltam, és tanítottam be szekvencia predikcióra klasszikus zongoraművek MIDI adatain. Eleinte egy nagyon primitív reprezentációval kezdtem, és az első 3 megközelítés alapvetően ugyanezzel az egyszerű reprezentációval dolgozik, csupán modellbeli különbségek vannak. A második 3 modellnél használt megközelítés egy egészen más, sokkal komplexebb reprezentáció. Részletek lentebb olvashatók minden modellről.
 
 ## Mappastruktúra
 ```
