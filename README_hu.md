@@ -120,9 +120,9 @@ Itt is egy transzformer alapú modellt szerettem volna megvalósítani, azonban 
 
 ### Eredmények
 
-A modell a különös architektúra ellenére (rengeteg kísérletezés és paraméterezés után) kifejezetten meggyőző eredményeket produkált. A generált dallamokban megfigyelhetők mélyebb hangokból álló akkordok, magasabb hangokon egyéni billentyűlenyomások sorozatából álló dallam, illetve valamilyen ritmusosság is. Példákat a [generations/model_4](generations/model_4/) mappában lehet találni.
+A modell a különös architektúra ellenére (rengeteg kísérletezés és paraméterezés után) kifejezetten meggyőző eredményeket produkált. A generált dallamokban megfigyelhetők mélyebb hangokból álló akkordok, magasabb hangokon egyéni billentyűlenyomások sorozatából álló dallam, illetve valamilyen ritmusosság is. Példákat a [generations/model_4](generations/model_4/) mappában lehet találni. Fontos megjegyezni, hogy ezeket az eredményeket a becsült valószínűségekhez hozzáadott megfelelő random zaj segítségével sikerült elérni, zaj nélkül csak a korábbi billentyűket "tartja lenyomva" a modell (bővebben lásd a kihívások, hátrányok bekezdést).
 
-![Grafikon a betanítás költség és pontosság alakulásáról](data/images/model_3_graphs.png)
+![Grafikon a betanítás költség és pontosság alakulásáról](data/images/model_4_graphs.png)
 
 *Grafikonok a költség és pontosság alakulásáról a modell 6 epoch-os betanításánál.*
 
@@ -140,18 +140,50 @@ Ellenkező esetben, ha a `tick_resolution` túl nagy, azaz nagyon nagy szeletekr
 
 ### Reprezentáció
 
+A reprezentáció teljesen megegyezik a 4. modellnél használttal.
+
 ### Modell architektúra
+
+Ennél a próbálkozásnál sikerült egy értelmes transzformer modellt összeraknom, ahol egy teljesen összekötött réteg a bemeneti vektorokat átalakítja egy sűrűbb reprezentációra, amelyet továbbad a transzformernek, majd a kimenetet szintén egy teljesen összekötött réteg alakítja vissza a bemenetivel megegyező méretű valószínűségi vektorok sorozatává. Ennél a modellnél nem alkalmaztam sem pozíció kódolást, sem look-ahead maszkolást, ez csak egy egyszerű kísérlet volt a transzformer modellel.
+
+![Ábra a modell architektúrájáról](data/images/model_5.png)
+
+**Megjegyzés:** a betanítások során több beállítással is próbálkoztam, így az elmentett modellek bizonyos attribútumai nem feltétlenül egyeznek az ábrán látottakkal. A [weights/model_5](weights/model_5/) mappában található elmentett modellek az alábbi logika alapján vannak elnevezve: `YYYY-MM-DD_hh-mm-ss_e[embedding_dimension]_nh[attention_heads_number]_h[hidden_size]_l[layers_number]_sl[sequence_length]_tr[tick_resolution]`.
 
 ### Eredmények
 
+Ugyan a betanításnál rendkívül magas pontosságot ért el (a 4. modellnél is magasabbat), a valódi teljesítménye hasonló a korábbi modellhez. Továbbra is szükség volt relatív nagy zajt hozzáadni a becsül valószínűségekhez, hogy valamilyen dallamot lehessen elérni, viszont úgy éreztem, hogy kicsit nagyobb a konzisztencia a kiválasztott hangok skálájában: kevesebb nagyon magas vagy nagyon mély hangot becsült látszólag összefüggés nélkül a 4. modellhez képest, azaz hasonló ritmusosság mellett kellemesebb hangzást tudott elérni. Példákat a [generations/model_5](generations/model_5/) mappában lehet találni.
+
+![Grafikon a betanítás költség és pontosság alakulásáról](data/images/model_5_graphs.png)
+
+*Grafikonok a költség és pontosság alakulásáról a modell 6 epoch-os betanításánál.*
+
 ### Kihívások, hátrányok
+
+A nehézségek alapvetően a reprezentációból adódnak, amelyet a 4. modellnél fejtettem ki bővebben.
 
 ## 6. Modell
 
 ### Reprezentáció
 
+A reprezentáció teljesen megegyezik a 4. modellnél használttal.
+
 ### Modell architektúra
+
+A modell architektúra nagyon hasonló az 5. modellnél látottakkal, azonban ezt már kiegészítettem pozíció kódolással, illetve mostmár a transzformer tartalmaz look-ahead maszkolást is, így teljessé vált a transzformer architektúra.
+
+![Ábra a modell architektúrájáról](data/images/model_6.png)
+
+**Megjegyzés:** a betanítások során több beállítással is próbálkoztam, így az elmentett modellek bizonyos attribútumai nem feltétlenül egyeznek az ábrán látottakkal. A [weights/model_6](weights/model_6/) mappában található elmentett modellek az alábbi logika alapján vannak elnevezve: `YYYY-MM-DD_hh-mm-ss_e[embedding_dimension]_nh[attention_heads_number]_h[hidden_size]_l[layers_number]_sl[sequence_length]_tr[tick_resolution]`.
 
 ### Eredmények
 
+Az eredmények nem különböztek jelentősen az 5. modell eredményeitől: a nagymértékű zaj továbbra is szükséges volt szekvencia generálásnál, viszont az így létrehozott sorozatok hasonló ritmusossággal és relatív konzisztens dallammal rendelkeztek, mint a korábbi próbálkozásnál. Példákat a [generations/model_6](generations/model_6/) mappában lehet találni.
+
+![Grafikon a betanítás költség és pontosság alakulásáról](data/images/model_6_graphs.png)
+
+*Grafikonok a költség és pontosság alakulásáról a modell 6 epoch-os betanításánál.*
+
 ### Kihívások, hátrányok
+
+A nehézségek alapvetően a reprezentációból adódnak, amelyet a 4. modellnél fejtettem ki bővebben.
