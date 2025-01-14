@@ -187,3 +187,10 @@ Az eredmények nem különböztek jelentősen az 5. modell eredményeitől: a na
 ### Kihívások, hátrányok
 
 A nehézségek alapvetően a reprezentációból adódnak, amelyet a 4. modellnél fejtettem ki bővebben.
+
+## Ötletek, javítani valók a jövőre
+
+Az időkorlátok miatt 2 ötletet is el kellett vetnem, melyeket meg szerettem volna (és talán a jövőben meg is fogok) még valósítani. Az egyik egy közepes megközelítés lett volna, az 1-2-3. és 4-5-6. reprezentáció közötti bonyolultsággal. A reprezentáció nagyon hasonló lett volna az 1-2-3-ban használthoz, azonban az egy-egy hang mellé még eltároltam volna a hang hosszát is, és egy olyan modellt definiáltam volna, ami a hangok valószínűségi vektora mellett a hangok hosszát is becsülte volna (vagy regresszióval, vagy pedig fix hanghosszok (pl. 1/32, 1/16, 1/8, stb.) közül klasszifikációval).  
+A másik ötlet, az egy olyan reprezentáció, ami jobban hasonlít a 4-5-6-ban használthoz, hogy mindenféle hanghosszt, akkordot, és egymásra csúsztatott hangokat lehetővé tett volna, de mégsem küzdött volna azokkal a reprezentációs problémákkal, amikkel az előző ábrázolás. Minden hangról 3 dolgot tárolnék el: előtte lévő hang óta eltelt idő, hangmagasság, hanghossz. Ezzel a 3 tulajdonsággal mindent le lehet írni, és a "szeleteléshez" képest itt sokkal kevesebb felesleges információt tárolnék.
+
+![Ábra a reprezentációról](data/images/representation_x.png)
